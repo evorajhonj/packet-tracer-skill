@@ -1,35 +1,69 @@
-# Packet Tracer networking skill
+<div align="center">
 
-Build a small Cisco Packet Tracer lab from a plan, or give Codex an existing `.pkt` and ask it to trace a connection that isn't working. The tools work on files, so you don't need Packet Tracer open to plan addresses or check a saved configuration.
+**PACKET TRACER &nbsp; / &nbsp; CODEX SKILL**
+
+# Give your AI a Packet Tracer skill.
+
+**Describe the network. Get the `.pkt` file.**  
+Skip dragging routers and cables onto a blank canvas. For supported copper labs, Codex builds the topology, assigns the addresses, and hands you a file you can open in Packet Tracer.
+
+[![Latest release](https://img.shields.io/github/v/release/evorajhonj/packet-tracer-skill?style=flat-square&color=087f8c)](https://github.com/evorajhonj/packet-tracer-skill/releases/latest)
+[![Release asset downloads](https://img.shields.io/github/downloads/evorajhonj/packet-tracer-skill/total?style=flat-square&label=asset%20downloads)](https://github.com/evorajhonj/packet-tracer-skill/releases)
+[![GitHub stars](https://img.shields.io/github/stars/evorajhonj/packet-tracer-skill?style=flat-square&color=b57516)](https://github.com/evorajhonj/packet-tracer-skill/stargazers)
+[![Open issues](https://img.shields.io/github/issues/evorajhonj/packet-tracer-skill?style=flat-square)](https://github.com/evorajhonj/packet-tracer-skill/issues)
+
+[**Download a sample lab (.pkt)**](https://github.com/evorajhonj/packet-tracer-skill/releases/download/v1.0.0/two-lan-demo.pkt) &nbsp; · &nbsp; [**Install in Codex**](#install-in-codex) &nbsp; · &nbsp; [**Release notes**](https://github.com/evorajhonj/packet-tracer-skill/releases/latest)
+
+</div>
+
+---
+
+## From a prompt to a lab
+
+> Build two LANs with one PC each. Join their routers over a /30 link, add static routes in both directions, and give me the Packet Tracer file.
+
+Here's the layout in the downloadable sample:
+
+```text
+PC1 ─────────── R1 ─────────── R2 ─────────── PC2
+  192.168.10.0/24    10.0.0.0/30    192.168.20.0/24
+```
+
+Open the sample in Packet Tracer. On **PC1 → Desktop → Command Prompt**, try `ping 192.168.20.10`. That's the address of PC2. The saved routes were checked offline; this ping is how you test them in the simulator.
 
 ## Install in Codex
 
-Paste this into a Codex chat:
+Paste this into a Codex chat to install the **v1.0.0** release:
 
 ```text
-Use $skill-installer to install https://github.com/evorajhonj/packet-tracer-skill/tree/main/skills/networking
+Use $skill-installer to install https://github.com/evorajhonj/packet-tracer-skill/tree/v1.0.0/skills/networking
 ```
 
-Then try: **“Use $networking to build two LANs joined by two routers. Use static routes, save a new .pkt, and check the path between the PCs.”**
+Then start a request with `Use $networking`. The helpers use Python 3 (tested with 3.14) and need no pip packages.
 
-The file tools use Python 3 (tested with 3.14). No pip packages are needed. Open the finished lab in Packet Tracer when you want to test live traffic.
+| If you want to… | Try asking… |
+| --- | --- |
+| Build a lab from scratch | “Use $networking to build the two-LAN lab above. Save it as branch-office.pkt.” |
+| Fix an existing lab | “Use $networking on my attached .pkt. PC1 reaches its gateway but not PC2. Check the return route and save any fix as a copy.” |
+| Plan subnets | “Use $networking to split 192.168.40.0/24 for 61 staff interfaces, 29 lab interfaces and a two-address transit link. Those counts include gateways.” |
 
-## Try the tools yourself
+**What builds from scratch?** Router-PT, Switch-PT and PC-PT copper topologies. For other chassis or WAN media, start with an appropriate existing file. The offline checker can spot issues such as duplicate addresses and missing static routes; it does not send packets or prove a dynamic routing protocol has converged.
 
-From the root of a clone:
+<details>
+<summary><strong>Prefer the command line?</strong></summary>
+
+From the repository root:
 
 ```sh
-python skills/networking/scripts/vlsm.py 192.168.40.0/24 Staff=61 Lab=29 Transit=2
 python skills/networking/scripts/pkt_tool.py build example.pkt --plan skills/networking/templates/copper-chain.json
 python skills/networking/scripts/pkt_tool.py test example.pkt --between PC1 PC2
+python skills/networking/scripts/vlsm.py 192.168.40.0/24 Staff=61 Lab=29 Transit=2
 ```
 
-The first command is a separate planning example. It assigns Staff a /26, Lab a /27 and Transit a /30. Count the gateway in each LAN's host total. The next two commands build the bundled two-router example and check its saved path in both directions.
+Run the regression suite with `python -m unittest discover -s skills/networking/scripts/tests`.
 
-## What the checker can tell you
+</details>
 
-It can find a duplicate IP, a gateway on the wrong LAN, or a missing static return route in supported topologies. It doesn't send a ping, form an OSPF or EIGRP adjacency, or load a page from a simulated web server. A partial result tells you where the model stops; it doesn't mean the network is down.
+[Skill guide](skills/networking/SKILL.md) · [Topology plan format](skills/networking/references/fast-file.md) · [Troubleshooting](skills/networking/references/partial-connectivity.md) · [Third-party notices](skills/networking/scripts/THIRD_PARTY_LICENSE.txt)
 
-Start with the [skill guide](skills/networking/SKILL.md) for supported devices and edits. For a lab where only some clients or services fail, see [partial connectivity](skills/networking/references/partial-connectivity.md).
-
-Run the regression tests with `python -m unittest discover -s skills/networking/scripts/tests`. The bundled crypto helpers carry their own [MIT notice](skills/networking/scripts/THIRD_PARTY_LICENSE.txt). This is an independent project, not a Cisco product.
+Independent project. Not affiliated with Cisco.

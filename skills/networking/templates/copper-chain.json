@@ -1,0 +1,15 @@
+{
+  "devices": [
+    {"name":"PC1","kind":"Pc","x":120,"y":400,"interfaces":{"FastEthernet":"192.168.10.10/24"},"gateway":"192.168.10.1"},
+    {"name":"R1","kind":"Router","x":120,"y":180,"interfaces":{"FastEthernet0/0":"192.168.10.1/24","FastEthernet1/0":"10.0.0.1/30"},"routes":[{"network":"192.168.20.0/24","next_hop":"10.0.0.2"}]},
+    {"name":"R2","kind":"Router","x":500,"y":180,"interfaces":{"FastEthernet0/0":"192.168.20.1/24","FastEthernet1/0":"10.0.0.2/30"},"routes":[{"network":"192.168.10.0/24","next_hop":"10.0.0.1"}]},
+    {"name":"PC2","kind":"Pc","x":500,"y":400,"interfaces":{"FastEthernet":"192.168.20.10/24"},"gateway":"192.168.20.1"}
+  ],
+  "links": [
+    {"from":["PC1","FastEthernet"],"to":["R1","FastEthernet0/0"]},
+    {"from":["R1","FastEthernet1/0"],"to":["R2","FastEthernet1/0"]},
+    {"from":["R2","FastEthernet0/0"],"to":["PC2","FastEthernet"]}
+  ],
+  "tests": [["PC1","PC2"]],
+  "notes": [{"x":200,"y":80,"text":"PC - Router - Router - PC\nExplicit static-routing example; offline checks only"}]
+}
